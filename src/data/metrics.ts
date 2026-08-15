@@ -67,10 +67,11 @@ function cluster(
     const angle = rand() * Math.PI * 2;
     const radius = Math.sqrt(rand()) * spread;
     pts.push({
-      x: cx + Math.cos(angle) * radius,
-      y: cy + Math.sin(angle) * radius,
+      x: Number((cx + Math.cos(angle) * radius).toFixed(4)),
+      y: Number((cy + Math.sin(angle) * radius).toFixed(4)),
       subset,
     });
+
   }
   return pts;
 }
