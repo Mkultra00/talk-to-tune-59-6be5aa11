@@ -115,17 +115,18 @@ function Dashboard() {
 
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile
+          label="Diversity Index · A"
+          value={indexA.toFixed(2)}
+          delta={`${(indexA - indexB).toFixed(2)} vs B`}
+          tone="subset-a"
+          hint="Weighted composite of the three axes below."
+        />
+        <StatTile
           label="Diversity Index · B"
           value={indexB.toFixed(2)}
           delta={`+${delta.toFixed(2)} vs A`}
           tone="subset-b"
           hint="Weighted composite of the three axes below."
-        />
-        <StatTile
-          label="Diversity Index · A"
-          value={indexA.toFixed(2)}
-          tone="subset-a"
-          hint="Unfiltered baseline draw at identical n."
         />
         <StatTile
           label="Vendi Score (visual)"
