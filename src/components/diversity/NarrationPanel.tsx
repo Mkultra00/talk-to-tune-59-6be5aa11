@@ -64,8 +64,8 @@ export function NarrationPanel({ facts }: { facts: string }) {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
         <StatusChip
-          ok={integrations?.kimi}
-          label={`Kimi · ${integrations?.kimiModel ?? "unconfigured"}`}
+          ok={integrations?.lovable}
+          label={`Lovable AI · ${integrations?.lovableModel ?? "unconfigured"}`}
         />
         <StatusChip ok={integrations?.elevenlabs} label="ElevenLabs TTS" />
       </div>

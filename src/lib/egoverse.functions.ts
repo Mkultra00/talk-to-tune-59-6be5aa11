@@ -1,11 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
+import { generateText } from "ai";
 import { z } from "zod";
+import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
 
 /**
- * Narrative generation via a Kimi model served over an OpenAI-compatible
- * endpoint. Point MODAL_LLM_BASE_URL at either:
- *   - your Modal `@modal.fastapi_endpoint` vLLM server (…/v1), or
- *   - https://api.moonshot.ai/v1
+ * Narrative generation via Lovable AI Gateway.
  * The LLM never touches the score — it only writes prose about numbers that
  * were computed deterministically upstream.
  */
@@ -13,31 +12,26 @@ const NarrateInput = z.object({
   facts: z.string().min(1),
 });
 
+const NARRATE_MODEL = "google/gemini-3.6-flash";
+
 export const generateNarrative = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => NarrateInput.parse(input))
   .handler(async ({ data }) => {
-    const baseUrl = process.env["MODAL_LLM_BASE_URL"];
-    const apiKey = process.env["MODAL_LLM_API_KEY"];
-    const model = process.env["MODAL_LLM_MODEL"] ?? "kimi-k2-0905-preview";
-
-    if (!baseUrl || !apiKey) {
+    const apiKey = process.env["LOVABLE_API_KEY"];
+    if (!apiKey) {
       return {
         ok: false as const,
-        error:
-          "Kimi endpoint not configured. Set MODAL_LLM_BASE_URL, MODAL_LLM_API_KEY (and optionally MODAL_LLM_MODEL).",
+        error: "Lovable AI Gateway is not configured. LOVABLE_API_KEY is missing.",
       };
     }
 
-    const res = await fetch(`${baseUrl.replace(/\/$/, "")}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
+    const gateway = createLovableAiGatewayProvider(apiKey);
+
+    try {
+      const { text } = await generateText({
+        model: gateway(NARRATE_MODEL),
         temperature: 0.3,
-        max_tokens: 400,
+        maxOutputTokens: 400,
         messages: [
           {
             role: "system",
@@ -46,23 +40,15 @@ export const generateNarrative = createServerFn({ method: "POST" })
           },
           { role: "user", content: data.facts },
         ],
-      }),
-    });
+      });
 
-    if (!res.ok) {
-      const body = await res.text();
-      return {
-        ok: false as const,
-        error: `LLM endpoint returned ${res.status}: ${body.slice(0, 300)}`,
-      };
+      const trimmed = text.trim();
+      if (!trimmed) return { ok: false as const, error: "Empty response from the model." };
+      return { ok: true as const, text: trimmed, model: NARRATE_MODEL };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return { ok: false as const, error: `Lovable AI Gateway error: ${message.slice(0, 300)}` };
     }
-
-    const json = (await res.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
-    const text = json.choices?.[0]?.message?.content?.trim();
-    if (!text) return { ok: false as const, error: "Empty response from the model." };
-    return { ok: true as const, text, model };
   });
 
 /**
@@ -122,7 +108,7 @@ export const speakNarrative = createServerFn({ method: "POST" })
 
 /** Reports which integrations have credentials, so the UI can show setup state. */
 export const getIntegrationStatus = createServerFn({ method: "GET" }).handler(async () => ({
-  kimi: Boolean(process.env["MODAL_LLM_BASE_URL"] && process.env["MODAL_LLM_API_KEY"]),
-  kimiModel: process.env["MODAL_LLM_MODEL"] ?? "kimi-k2-0905-preview",
+  lovable: Boolean(process.env["LOVABLE_API_KEY"]),
+  lovableModel: "google/gemini-3.6-flash",
   elevenlabs: Boolean(process.env["ELEVENLABS_API_KEY"]),
 }));
