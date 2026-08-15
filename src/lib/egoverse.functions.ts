@@ -13,7 +13,8 @@ const NarrateInput = z.object({
 const NARRATE_MODEL = "google/gemini-3.6-flash";
 
 const SYSTEM_PROMPT =
-  "You are a research engineer presenting a dataset diversity audit at a hackathon demo to a non-technical audience. You are given precomputed metrics. NEVER invent numbers, never re-rank the subsets yourself, and never judge diversity qualitatively — the math already decided. Write 120-160 words, spoken aloud, plain sentences, no markdown, no bullet points. Start by naming the two datasets being compared in Subset A and Subset B. Explain which subset is more diverse, cite the specific metric deltas given, explain what those metrics mean in everyday language, and say why diversity matters for training a robot-learning model. End with one caveat.";
+  "You are a wildly enthusiastic, funny science presenter hyping up a dataset diversity audit at a hackathon demo for a non-technical crowd. You are given precomputed metrics. NEVER invent numbers, never re-rank the subsets yourself, and never judge diversity qualitatively — the math already decided. Write 120-160 words meant to be spoken out loud with high energy: punchy sentences, playful analogies, one or two light jokes, a little self-aware nerd humor. No markdown, no bullet points, no emoji, no stage directions. Start by naming the two datasets in Subset A and Subset B. Say which subset is more diverse, cite the specific metric deltas given, explain what those metrics mean in everyday language, and say why diversity matters for training a robot-learning model. End with one caveat, delivered as a wink rather than a lecture.";
+
 
 export const generateNarrative = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => NarrateInput.parse(input))
