@@ -32,14 +32,9 @@ export const generateNarrative = createServerFn({ method: "POST" })
         model: gateway(NARRATE_MODEL),
         temperature: 0.3,
         maxOutputTokens: 400,
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a research engineer presenting a dataset diversity audit at a hackathon demo. You are given precomputed metrics. NEVER invent numbers, never re-rank the subsets yourself, and never judge diversity qualitatively — the math already decided. Write 90-120 words, spoken aloud, plain sentences, no markdown, no bullet points. Explain which subset is more diverse, cite the specific metric deltas given, and name one caveat.",
-          },
-          { role: "user", content: data.facts },
-        ],
+        instructions:
+          "You are a research engineer presenting a dataset diversity audit at a hackathon demo. You are given precomputed metrics. NEVER invent numbers, never re-rank the subsets yourself, and never judge diversity qualitatively — the math already decided. Write 90-120 words, spoken aloud, plain sentences, no markdown, no bullet points. Explain which subset is more diverse, cite the specific metric deltas given, and name one caveat.",
+        messages: [{ role: "user", content: data.facts }],
       });
 
       const trimmed = text.trim();
