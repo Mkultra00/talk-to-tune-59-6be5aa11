@@ -200,6 +200,48 @@ function Dashboard() {
         </Panel>
 
         <Panel
+          step="03b"
+          title="What the motion score looks like"
+          subtitle="Two robots choreographed straight from each subset's motion signature — a bigger repertoire means a policy that has seen more ways to move."
+          className="lg:col-span-3"
+        >
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => setDancing((d) => !d)}
+              className="num rounded-md border border-border/60 px-3 py-1 text-[11px] text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {dancing ? "pause" : "play"}
+            </button>
+          </div>
+          <div className="mt-3 grid gap-4 sm:grid-cols-2">
+            <DancingRobot
+              subset="a"
+              label={metrics.subsets.a.label}
+              motion={metrics.axes[2]?.a ?? 0.3}
+              motionRaw={metrics.axes[2]?.rawA ?? ""}
+              seed={metrics.subsets.a.episodes + selection.a.length * 97}
+              playing={dancing}
+            />
+            <DancingRobot
+              subset="b"
+              label={metrics.subsets.b.label}
+              motion={metrics.axes[2]?.b ?? 0.7}
+              motionRaw={metrics.axes[2]?.rawB ?? ""}
+              seed={metrics.subsets.b.episodes + selection.b.length * 131}
+              playing={dancing}
+            />
+          </div>
+          <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+            The dance is deterministic: the number of distinct moves is drawn from the motion Vendi
+            Score, and the sequence is seeded by the dataset. A subset that collapses onto one
+            demonstrator loops the same step; a diverse subset cycles through many. That is exactly
+            the behaviour a policy trained on each subset would inherit.
+          </p>
+        </Panel>
+
+
+        <Panel
           step="04"
           title="Sanity harness"
           subtitle="Does the index rank subsets whose true ordering we already know?"
