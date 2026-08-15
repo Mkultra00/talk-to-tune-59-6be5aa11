@@ -1,7 +1,10 @@
 /**
  * Mock precomputed metrics — the exact shape your Modal job should emit as
- * `metrics.json`. Swap `getMetrics()` for a fetch of that file (or a Cloud
- * table) once the Python pipeline runs; nothing else in the UI changes.
+ * `metrics.json`. Swap `DATASETS` for a fetch of that file (or a Cloud table)
+ * once the Python pipeline runs; nothing else in the UI changes.
+ *
+ * The pipeline scores each *dataset* independently. The dashboard then picks
+ * any two of them as slot A and slot B and compares.
  */
 
 export type SubsetId = "a" | "b";
@@ -29,19 +32,194 @@ export type SanityCase = {
 
 export type FieldEntropy = { field: string; a: number; b: number };
 
+export type SubsetSummary = {
+  label: string;
+  episodes: number;
+  hours: number;
+  scenes: number;
+  demonstrators: number;
+};
+
 export type Metrics = {
   generatedAt: string;
   pipeline: string;
-  subsets: Record<
-    SubsetId,
-    { label: string; episodes: number; hours: number; scenes: number; demonstrators: number }
-  >;
+  subsets: Record<SubsetId, SubsetSummary>;
   axes: AxisScore[];
   fieldEntropy: FieldEntropy[];
   umap: UmapPoint[];
   sanity: SanityCase[];
   vendiStability: { bandwidth: string; a: number; b: number }[];
 };
+
+/** One scored dataset as emitted by the offline job. */
+export type Dataset = {
+  id: string;
+  label: string;
+  blurb: string;
+  episodes: number;
+  hours: number;
+  scenes: number;
+  demonstrators: number;
+  /** normalized 0..1 per axis key */
+  axis: Record<string, number>;
+  /** raw display value per axis key */
+  axisRaw: Record<string, string>;
+  fieldEntropy: Record<string, number>;
+  vendiStability: Record<string, number>;
+  /** UMAP cluster centers: [cx, cy, spread, n] */
+  clusters: [number, number, number, number][];
+  seed: number;
+};
+
+export const AXIS_META = [
+  {
+    key: "visual",
+    label: "Visual (Vendi Score)",
+    description:
+      "exp(Shannon entropy of the eigenvalues of the cosine-similarity kernel over DINOv3 frame embeddings). Normalized by n=2000.",
+  },
+  {
+    key: "metadata",
+    label: "Metadata coverage",
+    description:
+      "Mean normalized Shannon entropy across scene / task / object / demonstrator category distributions.",
+  },
+  {
+    key: "motion",
+    label: "Motion signature",
+    description:
+      "Vendi Score over 32-d per-episode motion descriptors (hand velocity histogram, path curvature, head-pose energy).",
+  },
+] as const;
+
+export const ENTROPY_FIELDS = ["scene_id", "task", "primary_object", "demonstrator_id"] as const;
+
+export const KERNELS = [
+  "cosine kernel (σ = 1.0)",
+  "RBF kernel (σ = 0.5)",
+  "RBF kernel (σ = 2.0)",
+] as const;
+
+export const DATASETS: Dataset[] = [
+  {
+    id: "unfiltered",
+    label: "Unfiltered draw",
+    blurb: "2000 random episodes, no balancing — collapses onto a few dominant scenes.",
+    episodes: 2000,
+    hours: 34.1,
+    scenes: 41,
+    demonstrators: 62,
+    axis: { visual: 0.47, metadata: 0.48, motion: 0.39 },
+    axisRaw: { visual: "14.2", metadata: "0.48", motion: "9.8" },
+    fieldEntropy: { scene_id: 0.41, task: 0.55, primary_object: 0.52, demonstrator_id: 0.44 },
+    vendiStability: {
+      "cosine kernel (σ = 1.0)": 14.2,
+      "RBF kernel (σ = 0.5)": 13.6,
+      "RBF kernel (σ = 2.0)": 15.1,
+    },
+    clusters: [
+      [0.34, 0.42, 0.14, 90],
+      [0.58, 0.3, 0.09, 45],
+    ],
+    seed: 20260815,
+  },
+  {
+    id: "curated",
+    label: "Curated draw",
+    blurb: "2000 episodes stratified over scene × task × demonstrator strata.",
+    episodes: 2000,
+    hours: 33.6,
+    scenes: 118,
+    demonstrators: 214,
+    axis: { visual: 0.61, metadata: 0.61, motion: 0.72 },
+    axisRaw: { visual: "18.3", metadata: "0.61", motion: "21.4" },
+    fieldEntropy: { scene_id: 0.68, task: 0.66, primary_object: 0.59, demonstrator_id: 0.71 },
+    vendiStability: {
+      "cosine kernel (σ = 1.0)": 18.3,
+      "RBF kernel (σ = 0.5)": 17.8,
+      "RBF kernel (σ = 2.0)": 19.0,
+    },
+    clusters: [
+      [0.3, 0.62, 0.13, 40],
+      [0.66, 0.6, 0.12, 40],
+      [0.5, 0.24, 0.11, 30],
+      [0.78, 0.4, 0.1, 25],
+    ],
+    seed: 771903,
+  },
+  {
+    id: "single-scene",
+    label: "Single scene",
+    blurb: "2000 episodes from one scene_id — the degenerate low-diversity control.",
+    episodes: 2000,
+    hours: 31.9,
+    scenes: 1,
+    demonstrators: 28,
+    axis: { visual: 0.19, metadata: 0.16, motion: 0.27 },
+    axisRaw: { visual: "5.1", metadata: "0.16", motion: "6.4" },
+    fieldEntropy: { scene_id: 0.02, task: 0.31, primary_object: 0.22, demonstrator_id: 0.29 },
+    vendiStability: {
+      "cosine kernel (σ = 1.0)": 5.1,
+      "RBF kernel (σ = 0.5)": 4.7,
+      "RBF kernel (σ = 2.0)": 5.6,
+    },
+    clusters: [[0.42, 0.46, 0.07, 120]],
+    seed: 331277,
+  },
+  {
+    id: "single-demonstrator",
+    label: "Single demonstrator",
+    blurb: "One person across many scenes — visually varied, motion-collapsed.",
+    episodes: 2000,
+    hours: 32.7,
+    scenes: 74,
+    demonstrators: 1,
+    axis: { visual: 0.52, metadata: 0.38, motion: 0.21 },
+    axisRaw: { visual: "15.4", metadata: "0.38", motion: "5.2" },
+    fieldEntropy: { scene_id: 0.62, task: 0.51, primary_object: 0.48, demonstrator_id: 0.0 },
+    vendiStability: {
+      "cosine kernel (σ = 1.0)": 15.4,
+      "RBF kernel (σ = 0.5)": 14.9,
+      "RBF kernel (σ = 2.0)": 16.2,
+    },
+    clusters: [
+      [0.36, 0.52, 0.15, 70],
+      [0.68, 0.44, 0.12, 55],
+    ],
+    seed: 918441,
+  },
+  {
+    id: "long-tail",
+    label: "Long-tail boosted",
+    blurb: "Rare scenes and objects oversampled — highest coverage, thinnest per-mode support.",
+    episodes: 2000,
+    hours: 35.4,
+    scenes: 163,
+    demonstrators: 188,
+    axis: { visual: 0.69, metadata: 0.74, motion: 0.63 },
+    axisRaw: { visual: "21.1", metadata: "0.74", motion: "18.7" },
+    fieldEntropy: { scene_id: 0.81, task: 0.72, primary_object: 0.77, demonstrator_id: 0.66 },
+    vendiStability: {
+      "cosine kernel (σ = 1.0)": 21.1,
+      "RBF kernel (σ = 0.5)": 20.4,
+      "RBF kernel (σ = 2.0)": 22.0,
+    },
+    clusters: [
+      [0.24, 0.34, 0.11, 32],
+      [0.5, 0.7, 0.12, 32],
+      [0.74, 0.28, 0.11, 30],
+      [0.8, 0.66, 0.1, 28],
+      [0.44, 0.44, 0.09, 28],
+    ],
+    seed: 550231,
+  },
+];
+
+export const DEFAULT_SELECTION = { a: "unfiltered", b: "curated" };
+
+export function getDataset(id: string): Dataset {
+  return DATASETS.find((d) => d.id === id) ?? DATASETS[0]!;
+}
 
 /** Deterministic PRNG so SSR and client render identical point clouds. */
 function mulberry32(seed: number) {
@@ -54,92 +232,56 @@ function mulberry32(seed: number) {
   };
 }
 
-function cluster(
-  rand: () => number,
-  cx: number,
-  cy: number,
-  spread: number,
-  n: number,
-  subset: SubsetId,
-): UmapPoint[] {
+function buildUmap(dataset: Dataset, subset: SubsetId): UmapPoint[] {
+  const rand = mulberry32(dataset.seed);
   const pts: UmapPoint[] = [];
-  for (let i = 0; i < n; i++) {
-    const angle = rand() * Math.PI * 2;
-    const radius = Math.sqrt(rand()) * spread;
-    pts.push({
-      x: Number((cx + Math.cos(angle) * radius).toFixed(4)),
-      y: Number((cy + Math.sin(angle) * radius).toFixed(4)),
-      subset,
-    });
-
+  for (const [cx, cy, spread, n] of dataset.clusters) {
+    for (let i = 0; i < n; i++) {
+      const angle = rand() * Math.PI * 2;
+      const radius = Math.sqrt(rand()) * spread;
+      pts.push({
+        x: Number((cx + Math.cos(angle) * radius).toFixed(4)),
+        y: Number((cy + Math.sin(angle) * radius).toFixed(4)),
+        subset,
+      });
+    }
   }
   return pts;
 }
 
-function buildUmap(): UmapPoint[] {
-  const rand = mulberry32(20260815);
-  return [
-    // Subset A: unfiltered, collapses onto two dominant scenes
-    ...cluster(rand, 0.34, 0.42, 0.14, 90, "a"),
-    ...cluster(rand, 0.58, 0.3, 0.09, 45, "a"),
-    // Subset B: curated, spread across the manifold
-    ...cluster(rand, 0.3, 0.62, 0.13, 40, "b"),
-    ...cluster(rand, 0.66, 0.6, 0.12, 40, "b"),
-    ...cluster(rand, 0.5, 0.24, 0.11, 30, "b"),
-    ...cluster(rand, 0.78, 0.4, 0.1, 25, "b"),
-  ];
+function summary(d: Dataset): SubsetSummary {
+  return {
+    label: d.label,
+    episodes: d.episodes,
+    hours: d.hours,
+    scenes: d.scenes,
+    demonstrators: d.demonstrators,
+  };
 }
 
-let cached: Metrics | null = null;
-
-export function getMetrics(): Metrics {
-  if (cached) return cached;
-  cached = {
+export function buildMetrics(aId: string, bId: string): Metrics {
+  const A = getDataset(aId);
+  const B = getDataset(bId);
+  return {
     generatedAt: "2026-08-15T13:40:00Z",
-    pipeline: "modal://egoverse-diversity · DINOv3 ViT-L/16 · 8 frames/episode · n=2000 fixed",
-    subsets: {
-      a: { label: "Subset A — unfiltered", episodes: 2000, hours: 34.1, scenes: 41, demonstrators: 62 },
-      b: { label: "Subset B — curated", episodes: 2000, hours: 33.6, scenes: 118, demonstrators: 214 },
-    },
-    axes: [
-      {
-        key: "visual",
-        label: "Visual (Vendi Score)",
-        description:
-          "exp(Shannon entropy of the eigenvalues of the cosine-similarity kernel over DINOv3 frame embeddings). Normalized by n=2000.",
-        a: 0.47,
-        b: 0.61,
-        rawA: "14.2",
-        rawB: "18.3",
-      },
-      {
-        key: "metadata",
-        label: "Metadata coverage",
-        description:
-          "Mean normalized Shannon entropy across scene / task / object / demonstrator category distributions.",
-        a: 0.48,
-        b: 0.61,
-        rawA: "0.48",
-        rawB: "0.61",
-      },
-      {
-        key: "motion",
-        label: "Motion signature",
-        description:
-          "Vendi Score over 32-d per-episode motion descriptors (hand velocity histogram, path curvature, head-pose energy).",
-        a: 0.39,
-        b: 0.72,
-        rawA: "9.8",
-        rawB: "21.4",
-      },
-    ],
-    fieldEntropy: [
-      { field: "scene_id", a: 0.41, b: 0.68 },
-      { field: "task", a: 0.55, b: 0.66 },
-      { field: "primary_object", a: 0.52, b: 0.59 },
-      { field: "demonstrator_id", a: 0.44, b: 0.71 },
-    ],
-    umap: buildUmap(),
+    pipeline:
+      "modal://egoverse-diversity · DINOv3 ViT-L/16 · 8 frames/episode · n=2000 fixed per dataset",
+    subsets: { a: summary(A), b: summary(B) },
+    axes: AXIS_META.map((ax) => ({
+      key: ax.key,
+      label: ax.label,
+      description: ax.description,
+      a: A.axis[ax.key] ?? 0,
+      b: B.axis[ax.key] ?? 0,
+      rawA: A.axisRaw[ax.key] ?? "—",
+      rawB: B.axisRaw[ax.key] ?? "—",
+    })),
+    fieldEntropy: ENTROPY_FIELDS.map((field) => ({
+      field,
+      a: A.fieldEntropy[field] ?? 0,
+      b: B.fieldEntropy[field] ?? 0,
+    })),
+    umap: [...buildUmap(A, "a"), ...buildUmap(B, "b")],
     sanity: [
       {
         name: "Single scene",
@@ -160,13 +302,17 @@ export function getMetrics(): Metrics {
         expectedRank: 1,
       },
     ],
-    vendiStability: [
-      { bandwidth: "cosine kernel (σ = 1.0)", a: 14.2, b: 18.3 },
-      { bandwidth: "RBF kernel (σ = 0.5)", a: 13.6, b: 17.8 },
-      { bandwidth: "RBF kernel (σ = 2.0)", a: 15.1, b: 19.0 },
-    ],
+    vendiStability: KERNELS.map((bandwidth) => ({
+      bandwidth,
+      a: A.vendiStability[bandwidth] ?? 0,
+      b: B.vendiStability[bandwidth] ?? 0,
+    })),
   };
-  return cached;
+}
+
+/** Back-compat default pairing. */
+export function getMetrics(): Metrics {
+  return buildMetrics(DEFAULT_SELECTION.a, DEFAULT_SELECTION.b);
 }
 
 export const DEFAULT_WEIGHTS: Record<string, number> = {
