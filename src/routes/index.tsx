@@ -177,7 +177,8 @@ function Dashboard() {
           step="04"
           title="Sanity harness"
           subtitle="Does the index rank subsets whose true ordering we already know?"
-          className="lg:col-span-2"
+          className="lg:col-span-2 lg:self-start"
+
         >
           <SanityHarness cases={metrics.sanity} />
         </Panel>
