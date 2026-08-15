@@ -207,7 +207,18 @@ function Dashboard() {
           subtitle="Two robots choreographed straight from each subset's motion signature — a bigger repertoire means a policy that has seen more ways to move."
           className="lg:col-span-3"
         >
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setSyncMoves((s) => !s)}
+              className={`num rounded-md border px-3 py-1 text-[11px] transition-colors ${
+                syncMoves
+                  ? "border-primary/50 bg-primary/15 text-foreground"
+                  : "border-border/60 text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              same move: {syncMoves ? "on" : "off"}
+            </button>
             <button
               type="button"
               onClick={() => setDancing((d) => !d)}
@@ -224,6 +235,7 @@ function Dashboard() {
               motionRaw={metrics.axes[2]?.rawA ?? ""}
               seed={metrics.subsets.a.episodes + selection.a.length * 97}
               playing={dancing}
+              sync={syncMoves}
             />
             <DancingRobot
               subset="b"
@@ -232,14 +244,15 @@ function Dashboard() {
               motionRaw={metrics.axes[2]?.rawB ?? ""}
               seed={metrics.subsets.b.episodes + selection.b.length * 131}
               playing={dancing}
+              sync={syncMoves}
             />
           </div>
           <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-            The dance is deterministic: the number of distinct moves is drawn from the motion Vendi
-            Score, and the sequence is seeded by the dataset. A subset that collapses onto one
-            demonstrator loops the same step; a diverse subset cycles through many. That is exactly
-            the behaviour a policy trained on each subset would inherit.
+            {syncMoves
+              ? "Both robots are asked for the same move at the same beat. A robot only performs it cleanly when that move is in the repertoire its subset taught it; otherwise it falls back to a weak, low-amplitude approximation. That gap is what a diversity delta buys you at policy level."
+              : "The dance is deterministic: the number of distinct moves is drawn from the motion Vendi Score, and the sequence is seeded by the dataset. A subset that collapses onto one demonstrator loops the same step; a diverse subset cycles through many."}
           </p>
+
         </Panel>
 
 
