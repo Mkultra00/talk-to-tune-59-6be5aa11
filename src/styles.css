@@ -162,17 +162,15 @@
 @keyframes umap-drift {
   0% {
     transform: translate(0, 0) scale(1);
-    opacity: var(--dot-op, 0.75);
   }
   50% {
     transform: translate(var(--dx, 1px), var(--dy, -1px)) scale(1.18);
-    opacity: 1;
   }
   100% {
     transform: translate(0, 0) scale(1);
-    opacity: var(--dot-op, 0.75);
   }
 }
+
 
 .umap-dot {
   transform-box: fill-box;
