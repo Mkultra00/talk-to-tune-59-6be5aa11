@@ -183,21 +183,35 @@ export function DancingRobot({
       </svg>
 
       <div className="mt-1 space-y-1">
-        <p className="num text-center text-[11px] text-muted-foreground">
-          move {moveIdx + 1}/{moves.length} · <span className="text-foreground">{move.name}</span>
-        </p>
+        {sync ? (
+          <p className="num text-center text-[11px] text-muted-foreground">
+            asked for <span className="text-foreground">{target.name}</span> ·{" "}
+            {known ? (
+              <span className="text-emerald-400">in repertoire</span>
+            ) : (
+              <span className="text-amber-400">not learned → weak approximation</span>
+            )}
+          </p>
+        ) : (
+          <p className="num text-center text-[11px] text-muted-foreground">
+            move {moveIdx + 1}/{moves.length} · <span className="text-foreground">{move.name}</span>
+          </p>
+        )}
         <div className="flex flex-wrap justify-center gap-1">
           {moves.map((m, i) => (
             <span
               key={m.name}
               className={`num rounded px-1.5 py-0.5 text-[10px] transition-colors ${
-                i === moveIdx ? "bg-primary/20 text-foreground" : "bg-muted/40 text-muted-foreground"
+                (sync ? known && m.name === target.name : i === moveIdx)
+                  ? "bg-primary/20 text-foreground"
+                  : "bg-muted/40 text-muted-foreground"
               }`}
             >
               {m.name}
             </span>
           ))}
         </div>
+
       </div>
     </div>
   );
