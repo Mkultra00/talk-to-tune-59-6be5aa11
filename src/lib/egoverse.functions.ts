@@ -102,7 +102,14 @@ export const speakNarrative = createServerFn({ method: "POST" })
         body: JSON.stringify({
           text: data.text,
           model_id: modelId,
-          voice_settings: { stability: 0.4, similarity_boost: 0.75, speed: 1.0 },
+          voice_settings: {
+            stability: 0.25,
+            similarity_boost: 0.75,
+            style: 0.7,
+            use_speaker_boost: true,
+            speed: 1.06,
+          },
+
         }),
       },
     );
