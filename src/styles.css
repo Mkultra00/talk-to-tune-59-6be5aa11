@@ -159,14 +159,36 @@
   }
 }
 
+@keyframes umap-drift {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: var(--dot-op, 0.75);
+  }
+  50% {
+    transform: translate(var(--dx, 1px), var(--dy, -1px)) scale(1.18);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: var(--dot-op, 0.75);
+  }
+}
+
 .umap-dot {
   transform-box: fill-box;
   transform-origin: center;
-  animation: umap-pop 520ms cubic-bezier(0.2, 0.9, 0.2, 1) backwards;
+  animation:
+    umap-pop 520ms cubic-bezier(0.2, 0.9, 0.2, 1) backwards,
+    umap-drift var(--dur, 6s) ease-in-out var(--dur-delay, 0s) infinite;
   transition:
     r 180ms ease,
     fill-opacity 180ms ease;
 }
+
+.umap-dot:hover {
+  animation-play-state: running, paused;
+}
+
 
 .umap-ring {
   animation: umap-spin 9s linear infinite;
