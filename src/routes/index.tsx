@@ -93,6 +93,18 @@ function Dashboard() {
         <p className="num mt-4 text-[11px] text-muted-foreground">{metrics.pipeline}</p>
       </header>
 
+      <div className="mb-6">
+        <Panel
+          step="00"
+          title="Choose the datasets to compare"
+          subtitle="Every dataset is scored independently offline; pick any two to place in slots A and B."
+        >
+          <DatasetPicker aId={selection.a} bId={selection.b} onChange={setSelection} />
+        </Panel>
+      </div>
+
+
+
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile
           label="Diversity Index · B"
