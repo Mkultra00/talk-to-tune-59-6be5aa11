@@ -48,6 +48,8 @@ function Dashboard() {
   const [weights, setWeights] = useState<Record<string, number>>(DEFAULT_WEIGHTS);
   const [dancing, setDancing] = useState(true);
   const [syncMoves, setSyncMoves] = useState(false);
+  const danceTime = useDanceClock(dancing);
+
 
 
 
