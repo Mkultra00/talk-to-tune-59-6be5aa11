@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { AxisBars } from "@/components/diversity/AxisBars";
-import { DancingRobot } from "@/components/diversity/DancingRobot";
+import { DancingRobot, useDanceClock } from "@/components/diversity/DancingRobot";
 import { DatasetPicker } from "@/components/diversity/DatasetPicker";
 import { NarrationPanel } from "@/components/diversity/NarrationPanel";
 import { Panel } from "@/components/diversity/Panel";
