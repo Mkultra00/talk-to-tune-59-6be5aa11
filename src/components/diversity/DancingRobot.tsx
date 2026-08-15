@@ -137,7 +137,7 @@ export function DancingRobot({
   const spin = move.spin ? Math.sin(p * 0.25) * 28 * damp : 0;
   const blink = Math.sin(t * 1.7) > 0.985 ? 0.15 : 1;
 
-  const color = subset === "a" ? "var(--subset-a, oklch(0.76 0.15 62))" : "var(--subset-b, oklch(0.8 0.14 192));
+  const color = subset === "a" ? "var(--subset-a, oklch(0.76 0.15 62))" : "var(--subset-b, oklch(0.8 0.14 192))";
   const f = (n: number) => n.toFixed(2);
 
 
