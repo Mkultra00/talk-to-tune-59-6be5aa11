@@ -46,8 +46,9 @@ export function UmapScatter({ points }: Props) {
         {visible.map((p, i) => (
           <circle
             key={i}
-            cx={p.x * 100}
-            cy={p.y * 100}
+            cx={(p.x * 100).toFixed(3)}
+            cy={(p.y * 100).toFixed(3)}
+
             r="0.95"
             fill={p.subset === "a" ? "var(--color-subset-a)" : "var(--color-subset-b)"}
             fillOpacity="0.72"
