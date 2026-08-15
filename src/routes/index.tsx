@@ -46,6 +46,7 @@ function Dashboard() {
     [selection.a, selection.b],
   );
   const [weights, setWeights] = useState<Record<string, number>>(DEFAULT_WEIGHTS);
+  const [dancing, setDancing] = useState(true);
 
 
   const indexA = compositeIndex(metrics.axes, weights, "a");
