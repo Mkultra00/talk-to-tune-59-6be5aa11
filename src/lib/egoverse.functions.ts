@@ -1,7 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { generateText } from "ai";
 import { z } from "zod";
-import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
 
 /**
  * Narrative generation via Lovable AI Gateway.
@@ -14,6 +12,9 @@ const NarrateInput = z.object({
 
 const NARRATE_MODEL = "google/gemini-3.6-flash";
 
+const SYSTEM_PROMPT =
+  "You are a research engineer presenting a dataset diversity audit at a hackathon demo. You are given precomputed metrics. NEVER invent numbers, never re-rank the subsets yourself, and never judge diversity qualitatively — the math already decided. Write 90-120 words, spoken aloud, plain sentences, no markdown, no bullet points. Explain which subset is more diverse, cite the specific metric deltas given, and name one caveat.";
+
 export const generateNarrative = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => NarrateInput.parse(input))
   .handler(async ({ data }) => {
@@ -25,19 +26,37 @@ export const generateNarrative = createServerFn({ method: "POST" })
       };
     }
 
-    const gateway = createLovableAiGatewayProvider(apiKey);
-
     try {
-      const { text } = await generateText({
-        model: gateway(NARRATE_MODEL),
-        temperature: 0.3,
-        maxOutputTokens: 2000,
-        instructions:
-          "You are a research engineer presenting a dataset diversity audit at a hackathon demo. You are given precomputed metrics. NEVER invent numbers, never re-rank the subsets yourself, and never judge diversity qualitatively — the math already decided. Write 90-120 words, spoken aloud, plain sentences, no markdown, no bullet points. Explain which subset is more diverse, cite the specific metric deltas given, and name one caveat.",
-        messages: [{ role: "user", content: data.facts }],
+      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Lovable-API-Key": apiKey,
+          "X-Lovable-AIG-SDK": "fetch",
+        },
+        body: JSON.stringify({
+          model: NARRATE_MODEL,
+          temperature: 0.3,
+          max_tokens: 2000,
+          messages: [
+            { role: "system", content: SYSTEM_PROMPT },
+            { role: "user", content: data.facts },
+          ],
+        }),
       });
 
-      const trimmed = text.trim();
+      if (!res.ok) {
+        const body = await res.text();
+        return {
+          ok: false as const,
+          error: `Lovable AI Gateway returned ${res.status}: ${body.slice(0, 300)}`,
+        };
+      }
+
+      const json = (await res.json()) as {
+        choices?: Array<{ message?: { content?: string | null } }>;
+      };
+      const trimmed = (json.choices?.[0]?.message?.content ?? "").trim();
       if (!trimmed) return { ok: false as const, error: "Empty response from the model." };
       return { ok: true as const, text: trimmed, model: NARRATE_MODEL };
     } catch (error) {
@@ -45,6 +64,7 @@ export const generateNarrative = createServerFn({ method: "POST" })
       return { ok: false as const, error: `Lovable AI Gateway error: ${message.slice(0, 300)}` };
     }
   });
+
 
 /**
  * ElevenLabs text-to-speech for the demo narration track.
