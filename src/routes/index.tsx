@@ -240,6 +240,7 @@ function Dashboard() {
               seed={metrics.subsets.a.episodes + selection.a.length * 97}
               playing={dancing}
               sync={syncMoves}
+              time={danceTime}
             />
             <DancingRobot
               subset="b"
@@ -249,6 +250,8 @@ function Dashboard() {
               seed={metrics.subsets.b.episodes + selection.b.length * 131}
               playing={dancing}
               sync={syncMoves}
+              time={danceTime}
+
             />
           </div>
           <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
