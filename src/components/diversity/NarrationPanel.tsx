@@ -114,7 +114,7 @@ export function NarrationPanel({ facts }: { facts: string }) {
   );
 }
 
-function StatusChip({ ok, label }: { ok?: boolean; label: string }) {
+function StatusChip({ ok, label }: { ok?: boolean | undefined; label: string }) {
   return (
     <span className="flex items-center gap-2 rounded-md border border-border bg-card/60 px-2.5 py-1 text-xs text-muted-foreground">
       <span
