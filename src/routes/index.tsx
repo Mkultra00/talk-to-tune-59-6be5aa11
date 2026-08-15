@@ -39,8 +39,13 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
-  const metrics = getMetrics();
+  const [selection, setSelection] = useState(DEFAULT_SELECTION);
+  const metrics = useMemo(
+    () => buildMetrics(selection.a, selection.b),
+    [selection.a, selection.b],
+  );
   const [weights, setWeights] = useState<Record<string, number>>(DEFAULT_WEIGHTS);
+
 
   const indexA = compositeIndex(metrics.axes, weights, "a");
   const indexB = compositeIndex(metrics.axes, weights, "b");
