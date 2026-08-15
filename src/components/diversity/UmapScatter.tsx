@@ -19,24 +19,41 @@ export function UmapScatter({ points }: Props) {
   );
 
   return (
-    <div>
-      <div className="mb-3 flex flex-wrap items-center gap-3">
-        <Toggle
-          active={show.a}
-          onClick={() => setShow((s) => ({ ...s, a: !s.a }))}
-          dot="bg-subset-a"
-          label="Subset A"
-        />
-        <Toggle
-          active={show.b}
-          onClick={() => setShow((s) => ({ ...s, b: !s.b }))}
-          dot="bg-subset-b"
-          label="Subset B"
-        />
-        <span className="num ml-auto text-[11px] text-muted-foreground">
-          {visible.length} sampled frames
-        </span>
-      </div>
+    <TooltipProvider>
+      <div>
+        <div className="mb-3 flex flex-wrap items-center gap-3">
+          <Toggle
+            active={show.a}
+            onClick={() => setShow((s) => ({ ...s, a: !s.a }))}
+            dot="bg-subset-a"
+            label="Subset A"
+          />
+          <Toggle
+            active={show.b}
+            onClick={() => setShow((s) => ({ ...s, b: !s.b }))}
+            dot="bg-subset-b"
+            label="Subset B"
+          />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                className="ml-auto flex items-center gap-1.5 rounded-md p-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+                aria-label="What do the dots mean?"
+              >
+                <Info className="size-3.5" />
+                <span className="hidden sm:inline">What do the dots mean?</span>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-xs">
+              <p>
+                Each dot is one sampled video frame. Its position comes from UMAP, a 2D projection
+                of DINOv3 visual embeddings. Color shows which subset the frame belongs to. Tight
+                clusters = similar frames; spread-out regions = more diverse visual content.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
 
       <svg
         viewBox="0 0 100 100"
