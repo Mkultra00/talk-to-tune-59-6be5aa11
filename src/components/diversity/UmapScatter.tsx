@@ -150,7 +150,15 @@ export function UmapScatter({ points }: Props) {
                   filter={active ? "url(#umap-glow)" : undefined}
                   onMouseEnter={() => setHover(p.i)}
                   className="umap-dot cursor-crosshair"
-                  style={{ animationDelay: `${(p.i % 40) * 22}ms` }}
+                  style={
+                    {
+                      animationDelay: `${(p.i % 40) * 22}ms, ${((p.i * 37) % 50) * 90}ms`,
+                      "--dx": `${(((p.i * 17) % 7) - 3) * 0.22}px`,
+                      "--dy": `${(((p.i * 29) % 7) - 3) * 0.22}px`,
+                      "--dur": `${5 + ((p.i * 13) % 9) * 0.55}s`,
+                    } as React.CSSProperties
+                  }
+
                 />
               );
             })}
