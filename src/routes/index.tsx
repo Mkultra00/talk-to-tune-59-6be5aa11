@@ -74,6 +74,8 @@ function Dashboard() {
       `Sanity harness (constructed subsets with known ordering): ${metrics.sanity
         .map((s) => `${s.name} = ${s.index.toFixed(2)}`)
         .join(", ")}.`,
+      `Metric meanings for a non-technical audience:\n- Visual Vendi Score: how many visually distinct "modes" the subset contains. Higher means the frames look less like repeats of the same few scenes.\n- Metadata coverage: how evenly the labels (scene, task, object, demonstrator) are spread. High coverage means no single label dominates.\n- Motion signature: how varied the human movement is. More diverse motion means the dataset captures different ways people interact with the world.\n- Composite Diversity Index: a weighted blend of the three scores above. It is the headline number for ranking the subsets.`,
+      `Why this matters:\nA more diverse training set helps a robot-learning model generalize to new homes, tasks, and people instead of overfitting to the most common scenes or demonstrators in the data.`,
       `No LLM was used to compute any of these numbers.`,
     ].join("\n\n");
   }, [metrics, weights, indexA, indexB, delta]);
