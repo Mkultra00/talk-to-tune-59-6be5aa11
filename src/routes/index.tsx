@@ -63,8 +63,8 @@ function Dashboard() {
       .join("\n");
     return [
       `Dataset: EgoVerse. Two subsets of ${metrics.subsets.a.episodes} episodes each (subset size fixed so Vendi Score is comparable).`,
-      `Subset A = unfiltered (${metrics.subsets.a.scenes} scenes, ${metrics.subsets.a.demonstrators} demonstrators).`,
-      `Subset B = curated (${metrics.subsets.b.scenes} scenes, ${metrics.subsets.b.demonstrators} demonstrators).`,
+      `Subset A = ${metrics.subsets.a.label} (${metrics.subsets.a.scenes} scenes, ${metrics.subsets.a.demonstrators} demonstrators).`,
+      `Subset B = ${metrics.subsets.b.label} (${metrics.subsets.b.scenes} scenes, ${metrics.subsets.b.demonstrators} demonstrators).`,
       `Composite Diversity Index: A = ${indexA.toFixed(3)}, B = ${indexB.toFixed(3)}, delta = ${delta.toFixed(3)}.`,
       `Per-axis:\n${axisLines}`,
       `Per-field normalized entropy:\n${fieldLines}`,
