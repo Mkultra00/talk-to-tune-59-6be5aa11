@@ -2,12 +2,19 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { AxisBars } from "@/components/diversity/AxisBars";
+import { DatasetPicker } from "@/components/diversity/DatasetPicker";
 import { NarrationPanel } from "@/components/diversity/NarrationPanel";
 import { Panel } from "@/components/diversity/Panel";
 import { SanityHarness } from "@/components/diversity/SanityHarness";
 import { StatTile } from "@/components/diversity/StatTile";
 import { UmapScatter } from "@/components/diversity/UmapScatter";
-import { DEFAULT_WEIGHTS, compositeIndex, getMetrics } from "@/data/metrics";
+import {
+  DEFAULT_SELECTION,
+  DEFAULT_WEIGHTS,
+  buildMetrics,
+  compositeIndex,
+} from "@/data/metrics";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,8 +39,13 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
-  const metrics = getMetrics();
+  const [selection, setSelection] = useState(DEFAULT_SELECTION);
+  const metrics = useMemo(
+    () => buildMetrics(selection.a, selection.b),
+    [selection.a, selection.b],
+  );
   const [weights, setWeights] = useState<Record<string, number>>(DEFAULT_WEIGHTS);
+
 
   const indexA = compositeIndex(metrics.axes, weights, "a");
   const indexB = compositeIndex(metrics.axes, weights, "b");
@@ -51,8 +63,8 @@ function Dashboard() {
       .join("\n");
     return [
       `Dataset: EgoVerse. Two subsets of ${metrics.subsets.a.episodes} episodes each (subset size fixed so Vendi Score is comparable).`,
-      `Subset A = unfiltered (${metrics.subsets.a.scenes} scenes, ${metrics.subsets.a.demonstrators} demonstrators).`,
-      `Subset B = curated (${metrics.subsets.b.scenes} scenes, ${metrics.subsets.b.demonstrators} demonstrators).`,
+      `Subset A = ${metrics.subsets.a.label} (${metrics.subsets.a.scenes} scenes, ${metrics.subsets.a.demonstrators} demonstrators).`,
+      `Subset B = ${metrics.subsets.b.label} (${metrics.subsets.b.scenes} scenes, ${metrics.subsets.b.demonstrators} demonstrators).`,
       `Composite Diversity Index: A = ${indexA.toFixed(3)}, B = ${indexB.toFixed(3)}, delta = ${delta.toFixed(3)}.`,
       `Per-axis:\n${axisLines}`,
       `Per-field normalized entropy:\n${fieldLines}`,
@@ -80,6 +92,18 @@ function Dashboard() {
         </p>
         <p className="num mt-4 text-[11px] text-muted-foreground">{metrics.pipeline}</p>
       </header>
+
+      <div className="mb-6">
+        <Panel
+          step="00"
+          title="Choose the datasets to compare"
+          subtitle="Every dataset is scored independently offline; pick any two to place in slots A and B."
+        >
+          <DatasetPicker aId={selection.a} bId={selection.b} onChange={setSelection} />
+        </Panel>
+      </div>
+
+
 
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile
