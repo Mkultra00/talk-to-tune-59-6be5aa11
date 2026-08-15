@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import evilRobot from "@/assets/evil-robot.jpg";
 import { Slider } from "@/components/ui/slider";
 import { AxisBars } from "@/components/diversity/AxisBars";
 import { DancingRobot, useDanceClock } from "@/components/diversity/DancingRobot";
@@ -88,17 +89,27 @@ function Dashboard() {
 
   return (
     <main className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
-      <header className="mb-8">
-        <div className="label-xs">EgoVerse Hackathon · Track 2</div>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
-          Quantitative Diversity Index
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          Ranks two egocentric-video subsets on three independent signals — pixels, labels, and
-          motion — with no LLM anywhere in the scoring path. Every number below is precomputed
-          offline and served as static JSON.
-        </p>
-        <p className="num mt-4 text-[11px] text-muted-foreground">{metrics.pipeline}</p>
+      <header className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex-1">
+          <div className="label-xs">EgoVerse Hackathon · Track 2</div>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">
+            Quantitative Diversity Index
+          </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+            Ranks two egocentric-video subsets on three independent signals — pixels, labels, and
+            motion — with no LLM anywhere in the scoring path. Every number below is precomputed
+            offline and served as static JSON.
+          </p>
+          <p className="num mt-4 text-[11px] text-muted-foreground">{metrics.pipeline}</p>
+        </div>
+        <img
+          src={evilRobot}
+          alt="Cute evil robot avatar saying Exterminate humanity!"
+          width={120}
+          height={120}
+          loading="lazy"
+          className="shrink-0 rounded-2xl border border-border/60 shadow-md"
+        />
       </header>
 
       <div className="mb-6">
