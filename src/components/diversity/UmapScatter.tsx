@@ -79,11 +79,12 @@ export function UmapScatter({ points }: Props) {
           />
         ))}
       </svg>
-      <p className="mt-2 text-xs text-muted-foreground">
-        UMAP of DINOv3 frame embeddings. Subset A collapses into two dense lobes; Subset B covers
-        four separated regions of the manifold — the visual proof behind the Vendi delta.
-      </p>
-    </div>
+        <p className="mt-2 text-xs text-muted-foreground">
+          UMAP of DINOv3 frame embeddings. Subset A collapses into two dense lobes; Subset B covers
+          four separated regions of the manifold — the visual proof behind the Vendi delta.
+        </p>
+      </div>
+    </TooltipProvider>
   );
 }
 
