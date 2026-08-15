@@ -2,6 +2,8 @@
 
 **Live demo:** [https://talk-to-tune-59.lovable.app](https://talk-to-tune-59.lovable.app)
 
+**Pitch deck:** [EgoVerse Diversity Auditor slides (PDF)](https://talk-to-tune-59.lovable.app/__l5e/assets-v1/9aa5a8e9-4230-416a-b75d-ce7bb1ed6b31/EgoVerse-Diversity-Auditor-Slides-2.pdf)
+
 This dashboard is a quantitative diversity auditor for egocentric robot-training data (the EgoVerse dataset). It lets you pick two dataset subsets, ranks them on three independent signals, and rolls them into a single Composite Diversity Index. An AI-generated narration explains the result in plain language, with optional ElevenLabs voice playback.
 
 ## Screenshots
