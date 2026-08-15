@@ -97,14 +97,16 @@ function Dashboard() {
               Quantitative Diversity Index
             </h1>
           </div>
-          <img
-            src={evilRobot}
-            alt="Cute evil robot avatar saying Exterminate humanity!"
-            width={120}
-            height={120}
-            loading="lazy"
-            className="shrink-0 rounded-2xl border border-border/60 shadow-md"
-          />
+          <div className="shrink-0 rounded-2xl bg-gradient-to-br from-subset-a/40 via-primary/30 to-subset-b/40 p-2 shadow-lg shadow-primary/10">
+            <img
+              src={evilRobot}
+              alt="Cute evil robot avatar saying Exterminate humanity!"
+              width={120}
+              height={120}
+              loading="lazy"
+              className="rounded-xl border border-border/60 shadow-md"
+            />
+          </div>
         </div>
         <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground">
           Ranks two egocentric-video subsets on three independent signals — pixels, labels, and
