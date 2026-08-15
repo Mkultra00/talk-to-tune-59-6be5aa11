@@ -52,7 +52,16 @@ export function NarrationPanel({ facts }: { facts: string }) {
       }
       const url = `data:${res.mimeType};base64,${res.audioBase64}`;
       setAudioUrl(url);
-      requestAnimationFrame(() => void audioRef.current?.play());
+      const el = audioRef.current;
+      if (el) {
+        el.src = url;
+        el.load();
+        try {
+          await el.play();
+        } catch {
+          setError("Audio is ready — press play on the player below.");
+        }
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Request failed");
     } finally {
@@ -104,7 +113,7 @@ export function NarrationPanel({ facts }: { facts: string }) {
         className="w-full resize-y rounded-lg border border-border bg-background/60 p-3 text-sm leading-relaxed outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
       />
 
-      {audioUrl ? <audio ref={audioRef} src={audioUrl} controls className="w-full" /> : null}
+      <audio ref={audioRef} controls className={audioUrl ? "w-full" : "hidden"} />
 
       <p className="text-xs leading-relaxed text-muted-foreground">
         The model receives only precomputed numbers and is instructed not to rank anything. Scoring
