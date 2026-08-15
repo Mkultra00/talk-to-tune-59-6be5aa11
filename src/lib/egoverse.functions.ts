@@ -79,8 +79,10 @@ export const speakNarrative = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => SpeakInput.parse(input))
   .handler(async ({ data }) => {
     const apiKey = process.env["ELEVENLABS_API_KEY"];
-    const voiceId = process.env["ELEVENLABS_VOICE_ID"] ?? "JBFqnCBsd6RMkjVDRZzb";
-    const modelId = process.env["ELEVENLABS_MODEL_ID"] ?? "eleven_turbo_v2_5";
+    // Sarah — expressive female voice for the high-energy demo read.
+    const voiceId = process.env["ELEVENLABS_VOICE_ID"] ?? "EXAVITQu4vr4xnSDxMaL";
+    const modelId = process.env["ELEVENLABS_MODEL_ID"] ?? "eleven_multilingual_v2";
+
 
     if (!apiKey) {
       return {
