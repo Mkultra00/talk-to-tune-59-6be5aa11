@@ -52,7 +52,16 @@ export function NarrationPanel({ facts }: { facts: string }) {
       }
       const url = `data:${res.mimeType};base64,${res.audioBase64}`;
       setAudioUrl(url);
-      requestAnimationFrame(() => void audioRef.current?.play());
+      const el = audioRef.current;
+      if (el) {
+        el.src = url;
+        el.load();
+        try {
+          await el.play();
+        } catch {
+          setError("Audio is ready — press play on the player below.");
+        }
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Request failed");
     } finally {
