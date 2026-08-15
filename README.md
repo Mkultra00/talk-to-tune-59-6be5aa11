@@ -4,6 +4,24 @@
 
 This dashboard is a quantitative diversity auditor for egocentric robot-training data (the EgoVerse dataset). It lets you pick two dataset subsets, ranks them on three independent signals, and rolls them into a single Composite Diversity Index. An AI-generated narration explains the result in plain language, with optional ElevenLabs voice playback.
 
+## Screenshots
+
+**Dashboard header and dataset picker**
+
+![Dataset picker and composite diversity index tiles](https://talk-to-tune-59.lovable.app/__l5e/assets-v1/af40966f-1215-48ab-a80c-68b129440ec1/Screenshot_2026-08-15_at_3.42.36_PM.png)
+
+**UMAP of DINOv3 frame embeddings**
+
+![UMAP scatter comparing Subset A and Subset B spread](https://talk-to-tune-59.lovable.app/__l5e/assets-v1/20b5b32e-ece3-40fb-95d5-29567bee4e9b/Screenshot_2026-08-15_at_3.42.47_PM.png)
+
+**Dancing robots and sanity harness**
+
+![Two robots choreographed from each subset's motion signature, next to the ranking sanity harness](https://talk-to-tune-59.lovable.app/__l5e/assets-v1/f6ab5cc3-e53a-435d-bf7e-ef95be1e80d2/Screenshot_2026-08-15_at_3.42.52_PM.png)
+
+**Metadata entropy, kernel stability, and AI narration**
+
+![Metadata entropy bars, kernel stability table, and the generated demo narration](https://talk-to-tune-59.lovable.app/__l5e/assets-v1/39363fd2-c3c9-4aee-800d-e03b80e5976c/Screenshot_2026-08-15_at_3.43.14_PM.png)
+
 ## What it does
 
 1. **Pick two subsets to compare** — choose any pair of scored datasets (e.g. an unfiltered random draw vs. a curated stratified draw, or a single-scene control vs. a long-tail boosted collection).
