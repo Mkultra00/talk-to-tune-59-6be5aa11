@@ -2,12 +2,19 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { AxisBars } from "@/components/diversity/AxisBars";
+import { DatasetPicker } from "@/components/diversity/DatasetPicker";
 import { NarrationPanel } from "@/components/diversity/NarrationPanel";
 import { Panel } from "@/components/diversity/Panel";
 import { SanityHarness } from "@/components/diversity/SanityHarness";
 import { StatTile } from "@/components/diversity/StatTile";
 import { UmapScatter } from "@/components/diversity/UmapScatter";
-import { DEFAULT_WEIGHTS, compositeIndex, getMetrics } from "@/data/metrics";
+import {
+  DEFAULT_SELECTION,
+  DEFAULT_WEIGHTS,
+  buildMetrics,
+  compositeIndex,
+} from "@/data/metrics";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
