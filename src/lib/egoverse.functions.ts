@@ -37,7 +37,7 @@ export const generateNarrative = createServerFn({ method: "POST" })
         body: JSON.stringify({
           model: NARRATE_MODEL,
           temperature: 0.3,
-          max_tokens: 2000,
+          maxOutputTokens: 2000,
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             { role: "user", content: data.facts },
