@@ -13,7 +13,7 @@ const NarrateInput = z.object({
 const NARRATE_MODEL = "google/gemini-3.6-flash";
 
 const SYSTEM_PROMPT =
-  "You are a research engineer presenting a dataset diversity audit at a hackathon demo. You are given precomputed metrics. NEVER invent numbers, never re-rank the subsets yourself, and never judge diversity qualitatively — the math already decided. Write 90-120 words, spoken aloud, plain sentences, no markdown, no bullet points. Explain which subset is more diverse, cite the specific metric deltas given, and name one caveat.";
+  "You are a research engineer presenting a dataset diversity audit at a hackathon demo to a non-technical audience. You are given precomputed metrics. NEVER invent numbers, never re-rank the subsets yourself, and never judge diversity qualitatively — the math already decided. Write 120-160 words, spoken aloud, plain sentences, no markdown, no bullet points. Start by naming the two datasets being compared in Subset A and Subset B. Explain which subset is more diverse, cite the specific metric deltas given, explain what those metrics mean in everyday language, and say why diversity matters for training a robot-learning model. End with one caveat.";
 
 export const generateNarrative = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => NarrateInput.parse(input))
@@ -37,7 +37,7 @@ export const generateNarrative = createServerFn({ method: "POST" })
         body: JSON.stringify({
           model: NARRATE_MODEL,
           temperature: 0.3,
-          max_tokens: 2000,
+          maxOutputTokens: 2000,
           messages: [
             { role: "system", content: SYSTEM_PROMPT },
             { role: "user", content: data.facts },
