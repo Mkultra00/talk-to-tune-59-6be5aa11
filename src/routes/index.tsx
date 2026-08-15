@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
+import evilRobot from "@/assets/evil-robot.jpg";
 import { Slider } from "@/components/ui/slider";
 import { AxisBars } from "@/components/diversity/AxisBars";
 import { DancingRobot, useDanceClock } from "@/components/diversity/DancingRobot";
