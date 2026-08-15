@@ -37,3 +37,29 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## EgoVerse Hackathon · Track 2 Pitch
+
+> A quantitative diversity auditor for egocentric robot-training data — ranks dataset subsets so "is our data diverse?" stops being a guess.
+
+### Three signals, one index
+
+- **Visual Diversity** — Vendi Score over DINOv3 frame embeddings. Higher means the frames cover more distinct visual situations.
+- **Metadata Coverage** — normalized Shannon entropy across scene, task, object, and demonstrator labels. Higher means the labels are more evenly distributed.
+- **Motion Signature** — Vendi Score over movement descriptors. Higher means the subset contains more varied physical motion.
+
+These three signals roll into a single **Composite Diversity Index** so teams can compare collection strategies on a clean 0–100 scale.
+
+### Built-in trust
+
+- **Sanity-checked ranking harness** — constructs subsets with a known diversity order and verifies the metric reproduces that order.
+- **LLM narrates only — never scores** — the AI explains the precomputed math in plain (or Gen Z) language; it does not influence the numbers.
+
+## Tech Stack
+
+| Layer | Tools |
+| --- | --- |
+| **Frontend** | TanStack Start v1 (React 19 + Vite 7), Tailwind CSS v4, shadcn/ui, TypeScript |
+| **Backend** | `createServerFn` server functions, Lovable AI Gateway for LLM calls |
+| **AI & Voice** | ElevenLabs text-to-speech narration |
+| **Deployment** | Lovable Cloud / Cloudflare Workers |
