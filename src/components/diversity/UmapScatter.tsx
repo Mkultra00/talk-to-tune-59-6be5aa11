@@ -1,5 +1,12 @@
 import { useMemo, useState } from "react";
+import { Info } from "lucide-react";
 import type { UmapPoint } from "@/data/metrics";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Props = { points: UmapPoint[] };
 
