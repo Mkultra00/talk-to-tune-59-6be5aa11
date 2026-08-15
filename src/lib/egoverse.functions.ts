@@ -31,7 +31,7 @@ export const generateNarrative = createServerFn({ method: "POST" })
       const { text } = await generateText({
         model: gateway(NARRATE_MODEL),
         temperature: 0.3,
-        maxTokens: 400,
+        maxOutputTokens: 400,
         messages: [
           {
             role: "system",
