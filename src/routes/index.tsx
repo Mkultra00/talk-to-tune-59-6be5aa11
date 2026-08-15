@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { AxisBars } from "@/components/diversity/AxisBars";
-import { DancingRobot } from "@/components/diversity/DancingRobot";
+import { DancingRobot, useDanceClock } from "@/components/diversity/DancingRobot";
 import { DatasetPicker } from "@/components/diversity/DatasetPicker";
 import { NarrationPanel } from "@/components/diversity/NarrationPanel";
 import { Panel } from "@/components/diversity/Panel";
@@ -48,6 +48,8 @@ function Dashboard() {
   const [weights, setWeights] = useState<Record<string, number>>(DEFAULT_WEIGHTS);
   const [dancing, setDancing] = useState(true);
   const [syncMoves, setSyncMoves] = useState(false);
+  const danceTime = useDanceClock(dancing);
+
 
 
 
@@ -238,6 +240,7 @@ function Dashboard() {
               seed={metrics.subsets.a.episodes + selection.a.length * 97}
               playing={dancing}
               sync={syncMoves}
+              time={danceTime}
             />
             <DancingRobot
               subset="b"
@@ -247,6 +250,8 @@ function Dashboard() {
               seed={metrics.subsets.b.episodes + selection.b.length * 131}
               playing={dancing}
               sync={syncMoves}
+              time={danceTime}
+
             />
           </div>
           <p className="mt-3 text-xs leading-relaxed text-muted-foreground">

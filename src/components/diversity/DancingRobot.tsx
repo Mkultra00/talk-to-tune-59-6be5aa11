@@ -57,6 +57,34 @@ export function choreography(motion: number, seed: number) {
 
 const BARS = 2.4; // seconds per move
 
+/** Single shared clock so multiple robots stay perfectly in step. */
+export function useDanceClock(playing: boolean) {
+  const [t, setT] = useState(0);
+  const held = useRef(0);
+  const tRef = useRef(0);
+
+  useEffect(() => {
+    if (!playing) {
+      held.current = tRef.current;
+      return;
+    }
+    let raf = 0;
+    let start: number | null = null;
+    const base = held.current;
+    const loop = (ts: number) => {
+      if (start === null) start = ts;
+      const next = base + (ts - start) / 1000;
+      tRef.current = next;
+      setT(next);
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [playing]);
+
+  return t;
+}
+
 export function DancingRobot({
   subset,
   label,
@@ -65,6 +93,7 @@ export function DancingRobot({
   seed,
   playing,
   sync = false,
+  time,
 }: {
   subset: SubsetId;
   label: string;
@@ -74,31 +103,13 @@ export function DancingRobot({
   playing: boolean;
   /** When true, every robot attempts the SAME move from the global pool. */
   sync?: boolean;
+  /** Shared clock seconds; when provided the robot does not run its own RAF. */
+  time?: number;
 }) {
   const moves = choreography(motion, seed);
-  const [t, setT] = useState(0);
-  const raf = useRef<number | null>(null);
-  const start = useRef<number | null>(null);
-  const held = useRef(0);
+  const ownT = useDanceClock(playing && time === undefined);
+  const t = time ?? ownT;
 
-  useEffect(() => {
-    if (!playing) {
-      held.current = t;
-      return;
-    }
-    const base = held.current;
-    start.current = null;
-    const loop = (ts: number) => {
-      if (start.current === null) start.current = ts;
-      setT(base + (ts - start.current) / 1000);
-      raf.current = requestAnimationFrame(loop);
-    };
-    raf.current = requestAnimationFrame(loop);
-    return () => {
-      if (raf.current) cancelAnimationFrame(raf.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playing]);
 
   // In sync mode both robots are asked for the same target move from the full
   // pool. A robot only performs it cleanly if that move is in its repertoire;
