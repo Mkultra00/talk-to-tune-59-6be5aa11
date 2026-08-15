@@ -64,6 +64,7 @@ export function DancingRobot({
   motionRaw,
   seed,
   playing,
+  sync = false,
 }: {
   subset: SubsetId;
   label: string;
@@ -71,6 +72,8 @@ export function DancingRobot({
   motionRaw: string;
   seed: number;
   playing: boolean;
+  /** When true, every robot attempts the SAME move from the global pool. */
+  sync?: boolean;
 }) {
   const moves = choreography(motion, seed);
   const [t, setT] = useState(0);
@@ -97,22 +100,35 @@ export function DancingRobot({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playing]);
 
-  const moveIdx = Math.floor(t / BARS) % moves.length;
-  const move = moves[moveIdx]!;
-  const p = t * move.speed * Math.PI * 2;
+  // In sync mode both robots are asked for the same target move from the full
+  // pool. A robot only performs it cleanly if that move is in its repertoire;
+  // otherwise it approximates with its closest known move at reduced amplitude.
+  const targetIdx = Math.floor(t / BARS) % MOVE_POOL.length;
+  const target = MOVE_POOL[targetIdx]!;
+  const known = sync ? moves.some((m) => m.name === target.name) : true;
+  const moveIdx = sync
+    ? known
+      ? moves.findIndex((m) => m.name === target.name)
+      : targetIdx % moves.length
+    : Math.floor(t / BARS) % moves.length;
+  const base = sync && known ? target : moves[Math.max(0, moveIdx)]!;
+  const damp = sync && !known ? 0.45 : 1;
+  const move = base;
+  const p = t * (sync ? target.speed : move.speed) * Math.PI * 2;
 
-  const armL = Math.sin(p) * move.armAmp;
-  const armR = Math.sin(p + move.armPhase) * move.armAmp;
-  const legL = Math.sin(p) * move.legAmp;
-  const legR = Math.sin(p + Math.PI) * move.legAmp;
-  const hip = Math.sin(p * 0.5) * move.hipAmp;
-  const tilt = Math.sin(p * 0.5) * move.tiltAmp;
-  const bounce = Math.abs(Math.sin(p)) * -move.bounceAmp;
-  const spin = move.spin ? Math.sin(p * 0.25) * 28 : 0;
+  const armL = Math.sin(p) * move.armAmp * damp;
+  const armR = Math.sin(p + move.armPhase) * move.armAmp * damp;
+  const legL = Math.sin(p) * move.legAmp * damp;
+  const legR = Math.sin(p + Math.PI) * move.legAmp * damp;
+  const hip = Math.sin(p * 0.5) * move.hipAmp * damp;
+  const tilt = Math.sin(p * 0.5) * move.tiltAmp * damp;
+  const bounce = Math.abs(Math.sin(p)) * -move.bounceAmp * damp;
+  const spin = move.spin ? Math.sin(p * 0.25) * 28 * damp : 0;
   const blink = Math.sin(t * 1.7) > 0.985 ? 0.15 : 1;
 
   const color = subset === "a" ? "var(--chart-1, oklch(0.72 0.16 45))" : "var(--chart-2, oklch(0.72 0.14 200))";
   const f = (n: number) => n.toFixed(2);
+
 
   return (
     <div className="rounded-lg border border-border/60 bg-card/40 p-4">
